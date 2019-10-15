@@ -31,8 +31,9 @@ export default function packageFormReducer(state, action){
             ...state,
             nestSettings: [
                 ...state.nestSettings,
-                { name: "", amount: 0 }
-            ]
+                { name: "", amount: 1, id: state.nextID }
+            ],
+            nextID: state.nextID + 1
         };
     }
 
@@ -48,6 +49,21 @@ export default function packageFormReducer(state, action){
     }
 
     case "CALCULATE": {
+        const errors = [];
+        for(const index in state.nestSettings) {
+            const setting = state.nestSettings[index];
+            if(setting.amount < 1) {
+                errors.push(`Setting ${index+1}'s amount must be a number over 0!`);
+            }
+        }
+
+        if(errors.length > 0) {
+            return {
+                ...state,
+                errors
+            };
+        }
+
         return {
             ...state,
             result: calculatePackages(

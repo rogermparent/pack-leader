@@ -4,11 +4,10 @@ import Layout from "../components/layout";
 import packageFormReducer from "../reducers/package-form";
 
 import {styled} from 'linaria/react';
-import { useUID, useUIDSeed } from 'react-uid';
-
 const initialState = {
+    nextID: 1,
     nestSettings: [
-        { name: "Bag", amount: 100 }
+        { name: "Bag", amount: 100, id: 0 }
     ]
 };
 
@@ -88,45 +87,43 @@ li {
 `;
 
 const NestSettingListItem = (({setting, dispatch, index}) => {
-    const uid = index; // TODO figure out a way to make a real stable key
     return(
-    <NestSettingListItemStyle
-      key={uid}>
-      <input
-        type="text"
-        placeholder="Package Name"
-        value={setting.name}
-        onChange={e=>dispatch({
-            type: "UPDATE_SETTING",
-            index,
-            field: "name",
-            value: e.target.value
-        })}
-      />
-      <input
-        type="number"
-        placeholder="Amount nested"
-        value={setting.amount}
-        onChange={e=>dispatch({
-            type: "UPDATE_SETTING",
-            index,
-            field: "amount",
-            value: e.target.value
-        })}
-      />
-      <button
-        onClick={e=>dispatch({
-            type: "REMOVE_SETTING",
-            index
-        })}
-      >X</button>
-    </NestSettingListItemStyle>
+        <NestSettingListItemStyle>
+          <input
+            type="text"
+            placeholder="Package Name"
+            value={setting.name}
+            onChange={e=>dispatch({
+                type: "UPDATE_SETTING",
+                index,
+                field: "name",
+                value: e.target.value
+            })}
+          />
+          <input
+            type="number"
+            placeholder="Amount nested"
+            value={setting.amount}
+            onChange={e=>dispatch({
+                type: "UPDATE_SETTING",
+                index,
+                field: "amount",
+                value: e.target.value,
+            })}
+            min={1}
+          />
+          <button
+            onClick={e=>dispatch({
+                type: "REMOVE_SETTING",
+                index
+            })}
+          >X</button>
+        </NestSettingListItemStyle>
     );
 });
 
 const IndexPage = () => {
     const [state, dispatch] = useReducer(packageFormReducer, initialState);
-    const uid = useUIDSeed();
 
     return(
         <Layout>
@@ -134,7 +131,7 @@ const IndexPage = () => {
             <CalculatorResults>
               {
                   state.result && state.result.map((packageResult, index)=>(
-                      <li key={uid(packageResult, index)}>
+                      <li key={index}>
                         <b>{packageResult.name}</b>
                         <div>
                           <span>{packageResult.amount}</span>
@@ -162,6 +159,7 @@ const IndexPage = () => {
                           setting={setting}
                           dispatch={dispatch}
                           index={index}
+                          key={setting.id}
                         />
                     ))
                 }
