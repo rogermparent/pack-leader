@@ -5,6 +5,7 @@ import packageFormReducer from "../reducers/package-form";
 
 import {styled} from 'linaria/react';
 const initialState = {
+    errors: [],
     nextID: 1,
     nestSettings: [
         { name: "Bag", amount: 100, id: 0 }
@@ -53,7 +54,13 @@ input, button {
   height: 100%;
 }
 button {
-  border: none;
+  text-align: center;
+  width: 1.75em;
+  font-size: 0.8em;
+  font-weight: bold;
+  &:last-of-type{
+    border: none;
+  }
 }
 `;
 
@@ -86,6 +93,16 @@ li {
 }
 `;
 
+const ErrorList = styled.ul`
+list-style: none;
+padding: 0;
+margin: 0;
+li {
+  background-color: #E99;
+  padding: 0.2em 0.5em;
+}
+`;
+
 const NestSettingListItem = (({setting, dispatch, index}) => {
     return(
         <NestSettingListItemStyle>
@@ -114,6 +131,18 @@ const NestSettingListItem = (({setting, dispatch, index}) => {
           />
           <button
             onClick={e=>dispatch({
+                type: "MOVE_SETTING_UP",
+                index
+            })}
+          >&uarr;</button>
+          <button
+            onClick={e=>dispatch({
+                type: "MOVE_SETTING_DOWN",
+                index
+            })}
+          >&darr;</button>
+          <button
+            onClick={e=>dispatch({
                 type: "REMOVE_SETTING",
                 index
             })}
@@ -128,16 +157,27 @@ const IndexPage = () => {
     return(
         <Layout>
           <PackageCalculator>
+            {state.errors.length > 0 && (
+                <ErrorList>
+                  {state.errors.map((err, i)=>(
+                      <li>
+                        {err}
+                      </li>
+                  ))}
+                </ErrorList>
+            )}
             <CalculatorResults>
               {
                   state.result && state.result.map((packageResult, index)=>(
                       <li key={index}>
                         <b>{packageResult.name}</b>
-                        <div>
-                          <span>{packageResult.amount}</span>
-                          <span> @ </span>
-                          <span>{packageResult.partCount}</span>
-                        </div>
+                        {packageResult.variants.map((variant, i)=>(
+                            <div key={i}>
+                              <span>{variant.amount}</span>
+                              <span> @ </span>
+                              <span>{variant.partCount}</span>
+                            </div>
+                        ))}
                       </li>
                   ))
               }

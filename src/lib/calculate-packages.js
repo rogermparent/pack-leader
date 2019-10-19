@@ -12,17 +12,17 @@ export default function calculatePackages(
     const fullPackageCount = Math.trunc(itemCount/currentSetting.amount);
     const remainder = itemCount % currentSetting.amount;
     const partsPerFullPack = lastFullPackParts * currentSetting.amount;
+    const packageVariants = [];
 
     if(remainder > 0) {
         // There will be a partial pack
 
         // Add full packages to the results
         if(fullPackageCount > 0) {
-        currentResult.push({
-            name: currentSetting.name,
-            amount: fullPackageCount,
-            partCount: partsPerFullPack,
-        });
+            packageVariants.push({
+                amount: fullPackageCount,
+                partCount: partsPerFullPack,
+            });
         }
 
         // Find the amount of parts in the last package
@@ -31,10 +31,14 @@ export default function calculatePackages(
               remainder * lastFullPackParts;
 
         // Add the partial package to the results separately
-        currentResult.push({
-            name: currentSetting.name,
+        packageVariants.push({
             amount: 1,
             partCount: lastPackParts
+        });
+
+        currentResult.push({
+            name: currentSetting.name,
+            variants: packageVariants
         });
 
         return calculatePackages(
@@ -49,13 +53,12 @@ export default function calculatePackages(
         // There are no direct partial packages
         if(lastPartialPackParts){
             // A partial exists in the child packages
-            // Add the full packages
-            if(fullPackageCount > 0) {
-            currentResult.push({
-                name: currentSetting.name,
-                amount: fullPackageCount - 1,
-                partCount: partsPerFullPack
-            });
+            // Add the full packages, if they exist
+            if(fullPackageCount > 1) {
+                packageVariants.push({
+                    amount: fullPackageCount - 1,
+                    partCount: partsPerFullPack
+                });
             }
 
             // Add the partial package
@@ -63,10 +66,14 @@ export default function calculatePackages(
             const lastPackParts = ((currentSetting.amount-1)*lastFullPackParts)
                   + lastPartialPackParts;
 
-            currentResult.push({
-                name: currentSetting.name,
+            packageVariants.push({
                 amount: 1,
                 partCount: lastPackParts
+            });
+
+            currentResult.push({
+                name: currentSetting.name,
+                variants: packageVariants
             });
 
             return calculatePackages(
@@ -81,10 +88,15 @@ export default function calculatePackages(
         } else {
 
             // All packages will be full
-            currentResult.push({
+            packageVariants.push({
                 name: currentSetting.name,
                 amount: fullPackageCount,
                 partCount: partsPerFullPack
+            });
+
+            currentResult.push({
+                name: currentSetting.name,
+                variants: packageVariants
             });
 
             return calculatePackages(

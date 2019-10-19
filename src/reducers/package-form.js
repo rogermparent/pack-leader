@@ -18,6 +18,40 @@ export default function packageFormReducer(state, action){
         };
     }
 
+    case "MOVE_SETTING_UP": {
+        const { index } = action;
+
+        // Skip if the item is already first
+        if(index === 0) return state;
+
+        return {
+            ...state,
+            nestSettings: [
+                ...state.nestSettings.slice(0,index-1),
+                state.nestSettings[index],
+                state.nestSettings[index-1],
+                ...state.nestSettings.slice(index+1)
+            ]
+        };
+    }
+
+    case "MOVE_SETTING_DOWN": {
+        const { index } = action;
+
+        // Skip if the item is already last
+        if(index >= state.nestSettings.length) return state;
+
+        return {
+            ...state,
+            nestSettings: [
+                ...state.nestSettings.slice(0,index),
+                state.nestSettings[index+1],
+                state.nestSettings[index],
+                ...state.nestSettings.slice(index+2)
+            ]
+        };
+    }
+
     case "UPDATE_TOTAL": {
         const {value} = action;
         return {
@@ -50,10 +84,15 @@ export default function packageFormReducer(state, action){
 
     case "CALCULATE": {
         const errors = [];
+
+        if(!state.totalParts || state.totalParts <= 0) {
+            errors.push("Total Parts must be a number over 0!");
+        }
+
         for(const index in state.nestSettings) {
             const setting = state.nestSettings[index];
             if(setting.amount < 1) {
-                errors.push(`Setting ${index+1}'s amount must be a number over 0!`);
+                errors.push(`Setting ${Number(index)+1}'s amount must be a number over 0!`);
             }
         }
 
@@ -69,7 +108,8 @@ export default function packageFormReducer(state, action){
             result: calculatePackages(
                 state.totalParts,
                 state.nestSettings
-            )
+            ),
+            errors: []
         };
     }
 
