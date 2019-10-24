@@ -112,6 +112,16 @@ select,
 textarea {
   font: inherit;
   margin: 0;
+  border: 1px solid gray;
+  background-color: white;
+  line-height: 21.6px;
+  padding: 2px;
+  border-radius: 5px;
+}
+input,
+select {
+    height: 26px;
+    min-width: 0;
 }
 optgroup {
   font-weight: 700;
