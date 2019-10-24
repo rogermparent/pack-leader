@@ -39,7 +39,7 @@ export default function packageFormReducer(state, action){
         const { index } = action;
 
         // Skip if the item is already last
-        if(index >= state.nestSettings.length) return state;
+        if(index >= state.nestSettings.length-1) return state;
 
         return {
             ...state,
