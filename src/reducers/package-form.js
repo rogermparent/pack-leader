@@ -14,6 +14,7 @@ export function packageFormReducer(state, action){
 
         return {
             ...state,
+            focusLast: false,
             nestSettings: keyListReducer(
                 state.nestSettings,
                 {
@@ -32,6 +33,7 @@ export function packageFormReducer(state, action){
 
         return {
             ...state,
+            focusLast: false,
             nestSettings: keyListReducer(
                 state.nestSettings,
                 {
@@ -45,6 +47,7 @@ export function packageFormReducer(state, action){
     case "ADD_SETTING": {
         return {
             ...state,
+            focusLast: true,
             nestSettings: keyListReducer(
                 state.nestSettings,
                 {
@@ -58,6 +61,7 @@ export function packageFormReducer(state, action){
         const {index} = action;
         return {
             ...state,
+            focusLast: false,
             nestSettings: keyListReducer(
                 state.nestSettings,
                 {
@@ -72,6 +76,7 @@ export function packageFormReducer(state, action){
 
         return {
             ...state,
+            focusLast: false,
             result: calculatePackages(
                 action.data.totalParts,
                 action.data.nestSettings

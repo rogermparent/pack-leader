@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import useForm from 'react-hook-form';
 import {usePackageForm} from "../../reducers/package-form";
 
@@ -7,7 +7,6 @@ import {
     ControlButton,
     PackageSettingsList,
     PackageSettingListItem,
-    TotalPartInput,
     CalculatorResults,
     ErrorList
 } from "./styles";
@@ -29,6 +28,7 @@ const PackageSettingControls = (({setting, dispatch, index, register}) => {
             min={1}
           />
           <button
+            tabindex="-1"
             onClick={e=>{
                 e.preventDefault();
                 dispatch({
@@ -38,6 +38,7 @@ const PackageSettingControls = (({setting, dispatch, index, register}) => {
             }}
           >&uarr;</button>
           <button
+            tabindex="-1"
             onClick={e=>{
                 e.preventDefault();
                 dispatch({
@@ -47,6 +48,7 @@ const PackageSettingControls = (({setting, dispatch, index, register}) => {
             }}
           >&darr;</button>
           <button
+            tabindex="-1"
             onClick={e=>{
                 e.preventDefault();
                 dispatch({
@@ -68,6 +70,16 @@ export default function PackageCalculator(){
             ]
         }
     });
+    useEffect(()=>{
+        document.getElementById('total-parts-input').focus();
+    }, []);
+    useEffect(()=>{
+        if(state.focusLast) {
+            document.getElementById('settings-list')
+                .querySelector('li:last-of-type>input:first-of-type')
+                .focus();
+        }
+    }, [state.nestSettings.keys.length]);
     const onSubmit = (data) => {
         dispatch({
             type: "CALCULATE",
@@ -99,10 +111,11 @@ export default function PackageCalculator(){
               type="number"
               value={state.totalParts}
               placeholder="Total Parts"
+              id='total-parts-input'
               ref={register({required: true})}
             />
             {errors["totalParts"] && errors["totalParts"].type}
-            <PackageSettingsList>
+            <PackageSettingsList id="settings-list">
               {
                   state.nestSettings.keys.map((key, index)=>(
                       <PackageSettingControls
