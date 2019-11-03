@@ -1,6 +1,6 @@
-import React, {useReducer} from 'react';
-
-import packageFormReducer from "../../reducers/package-form";
+import React from 'react';
+import useForm from 'react-hook-form';
+import {usePackageForm} from "../../reducers/package-form";
 
 import {
     CalculatorForm,
@@ -12,76 +12,71 @@ import {
     ErrorList
 } from "./styles";
 
-const initialState = {
-    errors: [],
-    nextID: 1,
-    nestSettings: [
-        { name: "Bag", amount: 100, id: 0 }
-    ]
-};
-
-const PackageSettingControls = (({setting, dispatch, index}) => {
+const PackageSettingControls = (({setting, dispatch, index, register}) => {
     return(
         <PackageSettingListItem>
           <input
+            name={`nestSettings[${index}].name`}
             type="text"
             placeholder="Package Name"
-            value={setting.name}
-            onChange={e=>dispatch({
-                type: "UPDATE_SETTING",
-                index,
-                field: "name",
-                value: e.target.value
-            })}
+            ref={register({required: true})}
           />
           <input
+            name={`nestSettings[${index}].amount`}
             type="number"
             placeholder="Amount nested"
-            value={setting.amount}
-            onChange={e=>dispatch({
-                type: "UPDATE_SETTING",
-                index,
-                field: "amount",
-                value: e.target.value,
-            })}
+            ref={register({required: true})}
             min={1}
           />
           <button
-            onClick={e=>dispatch({
-                type: "MOVE_SETTING_UP",
-                index
-            })}
+            onClick={e=>{
+                e.preventDefault();
+                dispatch({
+                    type: "MOVE_SETTING_UP",
+                    index
+                });
+            }}
           >&uarr;</button>
           <button
-            onClick={e=>dispatch({
-                type: "MOVE_SETTING_DOWN",
-                index
-            })}
+            onClick={e=>{
+                e.preventDefault();
+                dispatch({
+                    type: "MOVE_SETTING_DOWN",
+                    index
+                });
+            }}
           >&darr;</button>
           <button
-            onClick={e=>dispatch({
-                type: "REMOVE_SETTING",
-                index
-            })}
+            onClick={e=>{
+                e.preventDefault();
+                dispatch({
+                    type: "REMOVE_SETTING",
+                    index
+                });
+            }}
           >X</button>
         </PackageSettingListItem>
     );
 });
 
 export default function PackageCalculator(){
-    const [state, dispatch] = useReducer(packageFormReducer, initialState);
+    const [state, dispatch] = usePackageForm(1);
+    const { register, handleSubmit, watch, errors } = useForm({
+        defaultValues: {
+            nestSettings: [
+                { name: "Bag", amount: 100 }
+            ]
+        }
+    });
+    const onSubmit = (data) => {
+        dispatch({
+            type: "CALCULATE",
+            data: data
+        });
+    };
 
     return(
         <>
-          {state.errors.length > 0 && (
-              <ErrorList>
-                {state.errors.map((err, i)=>(
-                    <li>
-                      {err}
-                    </li>
-                ))}
-              </ErrorList>
-          )}
           <CalculatorResults>
             {
                 state.result && state.result.map((packageResult, index)=>(
@@ -98,36 +93,36 @@ export default function PackageCalculator(){
                 ))
             }
           </CalculatorResults>
-          <CalculatorForm>
-            <TotalPartInput
+          <CalculatorForm onSubmit={handleSubmit(onSubmit)}>
+            <input
+              name="totalParts"
               type="number"
               value={state.totalParts}
-              onChange={e=>dispatch({
-                  type: "UPDATE_TOTAL",
-                  value: e.target.value
-              })}
               placeholder="Total Parts"
+              ref={register({required: true})}
             />
+            {errors["totalParts"] && errors["totalParts"].type}
             <PackageSettingsList>
               {
-                  state.nestSettings.map((setting, index)=>(
+                  state.nestSettings.keys.map((key, index)=>(
                       <PackageSettingControls
-                        setting={setting}
+                        register={register}
                         dispatch={dispatch}
                         index={index}
-                        key={setting.id}
+                        key={key}
                       />
                   ))
               }
             </PackageSettingsList>
 
-            <ControlButton onClick={e=>dispatch({
-                type: "ADD_SETTING"
-            })}>Add Package Type</ControlButton>
+            <ControlButton onClick={e=>{
+                e.preventDefault();
+                dispatch({
+                    type: "ADD_SETTING"
+                });
+            }}>Add Package Type</ControlButton>
 
-            <ControlButton onClick={e=>dispatch({
-                type: "CALCULATE"
-            })}>Calculate</ControlButton>
+            <ControlButton type="submit">Calculate</ControlButton>
 
           </CalculatorForm>
         </>

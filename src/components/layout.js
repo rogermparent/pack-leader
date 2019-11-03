@@ -11,7 +11,7 @@ import { useStaticQuery, graphql } from "gatsby";
 import {styled} from "linaria/react";
 
 import Header from "./header";
-import "./layout.css";
+import "./layout.scss";
 
 const FullHeightLayout = styled.div`
 display: flex;

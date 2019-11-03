@@ -1,22 +1,10 @@
 import calculatePackages from "../lib/calculate-packages";
+import { keyListReducer, buildInitialState } from "./key-list";
+import { useReducer } from "react";
 
-export default function packageFormReducer(state, action){
+export function packageFormReducer(state, action){
+
     switch(action.type){
-
-    case "UPDATE_SETTING": {
-        const { index, field, value } = action;
-        return {
-            ...state,
-            nestSettings: [
-                ...state.nestSettings.slice(0,index),
-                {
-                    ...state.nestSettings[index],
-                    [field]: value
-                },
-                ...state.nestSettings.slice(index+1)
-            ]
-        };
-    }
 
     case "MOVE_SETTING_UP": {
         const { index } = action;
@@ -26,12 +14,13 @@ export default function packageFormReducer(state, action){
 
         return {
             ...state,
-            nestSettings: [
-                ...state.nestSettings.slice(0,index-1),
-                state.nestSettings[index],
-                state.nestSettings[index-1],
-                ...state.nestSettings.slice(index+1)
-            ]
+            nestSettings: keyListReducer(
+                state.nestSettings,
+                {
+                    type: "MOVE_BACK",
+                    index
+                }
+            )
         };
     }
 
@@ -43,31 +32,25 @@ export default function packageFormReducer(state, action){
 
         return {
             ...state,
-            nestSettings: [
-                ...state.nestSettings.slice(0,index),
-                state.nestSettings[index+1],
-                state.nestSettings[index],
-                ...state.nestSettings.slice(index+2)
-            ]
-        };
-    }
-
-    case "UPDATE_TOTAL": {
-        const {value} = action;
-        return {
-            ...state,
-            totalParts: value
+            nestSettings: keyListReducer(
+                state.nestSettings,
+                {
+                    type: "MOVE_FORWARD",
+                    index
+                }
+            )
         };
     }
 
     case "ADD_SETTING": {
         return {
             ...state,
-            nestSettings: [
-                ...state.nestSettings,
-                { name: "", amount: 1, id: state.nextID }
-            ],
-            nextID: state.nextID + 1
+            nestSettings: keyListReducer(
+                state.nestSettings,
+                {
+                    type: "APPEND"
+                }
+            )
         };
     }
 
@@ -75,41 +58,24 @@ export default function packageFormReducer(state, action){
         const {index} = action;
         return {
             ...state,
-            nestSettings: [
-                ...state.nestSettings.slice(0, index),
-                ...state.nestSettings.slice(index+1)
-            ]
+            nestSettings: keyListReducer(
+                state.nestSettings,
+                {
+                    type: "REMOVE",
+                    index
+                }
+            )
         };
     }
 
     case "CALCULATE": {
-        const errors = [];
-
-        if(!state.totalParts || state.totalParts <= 0) {
-            errors.push("Total Parts must be a number over 0!");
-        }
-
-        for(const index in state.nestSettings) {
-            const setting = state.nestSettings[index];
-            if(setting.amount < 1) {
-                errors.push(`Setting ${Number(index)+1}'s amount must be a number over 0!`);
-            }
-        }
-
-        if(errors.length > 0) {
-            return {
-                ...state,
-                errors
-            };
-        }
 
         return {
             ...state,
             result: calculatePackages(
-                state.totalParts,
-                state.nestSettings
-            ),
-            errors: []
+                action.data.totalParts,
+                action.data.nestSettings
+            )
         };
     }
 
@@ -119,3 +85,8 @@ export default function packageFormReducer(state, action){
     }
 }
 
+export function usePackageForm(initialSettings){
+    return useReducer(packageFormReducer, {
+        nestSettings: buildInitialState(initialSettings)
+    });
+}

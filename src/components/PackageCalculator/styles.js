@@ -1,8 +1,13 @@
 import {styled} from 'linaria/react';
 
-export const CalculatorForm = styled.div`
+export const CalculatorForm = styled.form`
 font-family: sans-serif;
 font-size: 0.8em;
+>input {
+  padding-right: 0;
+  width: 100%;
+  overflow: hidden;
+}
 `;
 
 export const ControlButton = styled.button`
@@ -19,6 +24,8 @@ width: 100%;
 
 export const PackageSettingListItem = styled.li`
 display: flex;
+min-width: 330px;
+flex-flow: row nowrap;
 align-items: center;
 justify-content: center;
 height: 1.5em;
@@ -30,19 +37,21 @@ overflow: hidden;
   flex: 1;
 }
 >input[type=number]{
-  width: 4em;
+  width: 5em;
 }
 input, button {
   border-radius: 0;
-  border: none;
-  border-right: 1px solid gray;
+  border-style: none solid none none;
   padding: 0 0.25em;
   vertical-align: middle;
-  line-height: 0;
   height: 100%;
+}
+input {
+  padding: 0.15em;
 }
 button {
   text-align: center;
+  height: 100%;
   width: 1.75em;
   font-size: 0.8em;
   font-weight: bold;
@@ -50,13 +59,6 @@ button {
     border: none;
   }
 }
-`;
-
-export const TotalPartInput = styled.input`
-width: 100%;
-border: 1px solid gray;
-border-radius: 0.25em;
-padding: 0 0.5em;
 `;
 
 export const CalculatorResults = styled.ul`
