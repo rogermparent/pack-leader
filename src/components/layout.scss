@@ -12,8 +12,17 @@ body {
     box-sizing: border-box;
 }
 
-input, button {
+input, button, textarea {
     border: 1px solid gray;
-    border-radius: 0.25em;
+    border-radius: 3px;
     padding: 0 0.5em;
+}
+
+input {
+    min-width: 3em;
+}
+
+input[type=number] {
+    padding-right: 0;
+    overflow: hidden;
 }

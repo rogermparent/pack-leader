@@ -1,4 +1,6 @@
 import { useReducer } from "react";
+import { remove, update, insert, move } from 'ramda';
+
 
 export function keyListReducer(state, action){
     switch(action.type){
@@ -11,19 +13,12 @@ export function keyListReducer(state, action){
 
     case "INSERT":
         return {
-            keys: [
-                ...state.keys.slice(0, state.nextKey),
-                state.nextKey,
-                ...state.keys.slice(state.nextKey+1)
-            ]
+            keys: insert(action.index, state.nextKey, state.keys)
         };
 
     case "REMOVE":
         return {
-            keys: [
-                ...state.keys.slice(0, action.index),
-                ...state.keys.slice(action.index+1)
-            ],
+            keys: remove(action.index, 1, state.keys),
             nextKey: state.nextKey
         };
 
@@ -34,12 +29,7 @@ export function keyListReducer(state, action){
 
         return {
             nextKey: state.nextKey,
-            keys: [
-                ...state.keys.slice(0,action.index-1),
-                state.keys[action.index],
-                state.keys[action.index-1],
-                ...state.keys.slice(action.index+1)
-            ]
+            keys: move(action.index, action.index-1, state.keys),
         };
 
     case "MOVE_FORWARD":
@@ -49,12 +39,7 @@ export function keyListReducer(state, action){
 
         return {
             nextKey: state.nextKey,
-            keys: [
-                ...state.keys.slice(0,action.index),
-                state.keys[action.index+1],
-                state.keys[action.index],
-                ...state.keys.slice(action.index+2)
-            ]
+            keys: move(action.index, action.index+1, state.keys),
         };
 
     default: return state;

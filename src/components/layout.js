@@ -25,7 +25,7 @@ min-height: 100vh;
 
 const MainContentContainer = styled.main`
 flex: 1;
-padding: 1em 2em;
+padding: 0.5em;
 `;
 
 const Footer = styled.footer`
