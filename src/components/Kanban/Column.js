@@ -11,7 +11,7 @@ h2{
 border: 1px solid gray;
 border-radius: 5px;
 padding: 3px;
-margin: 3px;
+margin: 0 3px 0 0;
 `;
 
 const Column = ({

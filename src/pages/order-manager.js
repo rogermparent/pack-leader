@@ -88,8 +88,14 @@ flex-flow: column nowrap;
 `;
 
 const IndexPage = () => {
+
+    const savedState = JSON.parse(window.localStorage.getItem('orderManagerState'));
+    const loadedOrderMachine = savedState ?
+          orderMachine.withContext(savedState) :
+          orderMachine;
+
     const [ current, send ] = useMachine(
-        orderMachine
+        loadedOrderMachine
     );
     return(
         <Layout>

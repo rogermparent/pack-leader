@@ -170,7 +170,7 @@ export const OrderView = ({order, columnIndex, itemIndex, actions}) => {
               }
             >{comment}</Comment>
           </div>
-          <table>
+          <LineItemTable>
             <tbody>
               {lineItems.map((lineItem, lineIndex)=>(
                   <LineItem
@@ -180,7 +180,7 @@ export const OrderView = ({order, columnIndex, itemIndex, actions}) => {
                   />
               ))}
             </tbody>
-          </table>
+          </LineItemTable>
           <PropertyTable
             properties={[
                 ["Value", `$${totalPrice.toFixed(2)}`],
@@ -190,6 +190,10 @@ export const OrderView = ({order, columnIndex, itemIndex, actions}) => {
         </>
     );
 };
+
+const LineItemTable = styled.table`
+font-size: 0.8em;
+`;
 
 const PropertyLine = ({
     label,

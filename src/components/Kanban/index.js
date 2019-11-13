@@ -6,8 +6,10 @@ display: flex;
 flex: 1;
 flex-flow: row nowrap;
 overflow-x: auto;
+margin: -3px;
 >*{
-  flex: 1 0 220px;
+  flex: 1 0 300px;
+  max-width: 100%;
 }
 `;
 

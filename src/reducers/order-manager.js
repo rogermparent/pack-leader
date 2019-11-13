@@ -7,12 +7,12 @@ import {
     pipe,
     assoc,
     tap,
-    //__,
+    __,
 } from 'ramda';
 import {Machine, assign} from 'xstate';
 
 const menuTransitions = {
-    TICKET_MANAGER: 'ticketManager',
+    TICKET_MANAGER: 'editor',
     KANBAN: 'kanban',
 };
 
@@ -35,41 +35,41 @@ const initialContext = {
 export const orderMachine = Machine(
     {
         id: 'orderManager',
-        initial: 'ticketManager',
+        initial: 'editor',
         context: initialContext,
         states: {
             kanban: {
                 on: {
                     ...menuTransitions,
                     MOVE_RIGHT: {
-                        actions: 'moveOrderRight',
+                        actions: ['moveOrderRight', 'persist'],
                     },
                     MOVE_LEFT: {
-                        actions: 'moveOrderLeft',
+                        actions: ['moveOrderLeft', 'persist'],
                     },
                     REMOVE: {
-                        actions: 'removeOrder',
+                        actions: ['removeOrder', 'persist'],
                     },
                     UPDATE: {
-                        actions: 'updateOrderField'
+                        actions: ['updateOrderField', 'persist']
                     }
 
                 }
             },
-            ticketManager: {
+            editor: {
                 on: {
                     ...menuTransitions,
                     ADD: {
-                        actions: 'addTicket'
+                        actions: ['addTicket', 'persist']
                     },
                     LOAD: {
-                        actions: 'loadTicket'
+                        actions: ['loadTicket']
                     },
                     REMOVE: {
-                        actions: 'removeTicket'
+                        actions: ['removeTicket', 'persist']
                     },
                     UPDATE: {
-                        actions: 'updateTicket'
+                        actions: ['updateTicket', 'persist']
                     }
                 }
             }
@@ -113,7 +113,8 @@ export const orderMachine = Machine(
                                 e.value
                             )
                         ),
-                    )(ctx.columns),
+                        ctx.columns,
+                    ),
                 )
             }),
 
@@ -133,7 +134,8 @@ export const orderMachine = Machine(
                     return pipe(
                         evolveColumnItems(e.column+1, append(order)),
                         evolveColumnItems(e.column, remove(e.index, 1)),
-                    )(ctx.columns);
+                        ctx.columns,
+                    );
                 }
             }),
             moveOrderLeft: assign({
@@ -142,16 +144,21 @@ export const orderMachine = Machine(
                     return pipe(
                         evolveColumnItems(e.column-1, append(order)),
                         evolveColumnItems(e.column, remove(e.index, 1)),
-                    )(ctx.columns);
+                        ctx.columns,
+                    );
                 }
             }),
             removeOrder: assign({
                 columns: (ctx, e) => evolveColumnItems(
                     e.column,
-                    remove(e.index, 1)
-                )(ctx.columns),
+                    remove(e.index, 1),
+                    ctx.columns,
+                ),
             }),
 
+            persist: (ctx, e) => {
+                window.localStorage.setItem("orderManagerState", JSON.stringify(ctx));
+            }
         }
     }
 );
@@ -159,60 +166,4 @@ export const orderMachine = Machine(
 const evolveColumnItems = (column, fn, columns) => adjust(
     column, evolve({items: fn})
 );
-const evolveFirstColumnItems = (fn, columns) => evolveColumnItems(0, fn)(columns);
-
-/*
-function orderManagerReducer(state, action){
-    switch(action.type){
-
-    case "ADD":
-        return {
-            ...state,
-            tickets: [
-                ...state.tickets,
-                action.ticket
-            ],
-        };
-
-    case "REPLACE":
-        return {
-            ...state,
-            tickets: [
-                [action.column]: update(action.index, action.ticket, state.tickets)
-            ]
-        };
-
-    case "REMOVE":
-        return {
-            ...state,
-            tickets: remove(action.index, 1, state.tickets) 
-        };
-
-    case "MOVE_RIGHT":
-
-        const newOrder = {
-            ...state.tickets[action.index],
-            orderID: action.orderID
-        };
-
-        return {
-            ...state,
-            tickets: remove(action.index, 1, state.tickets),
-            orders: [
-                ...state.orders,
-                newOrder
-            ]
-        };
-
-    case "MOVE_LEFT":
-        return {
-            ...state,
-        };
-
-
-    default:
-        return state;
-
-    }
-}
-*/
+const evolveFirstColumnItems = (fn, columns) => evolveColumnItems(0, fn, columns);
