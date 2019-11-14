@@ -90,8 +90,8 @@ export function packageFormReducer(state, action){
     }
 }
 
-export function usePackageForm(initialSettings){
+export function usePackageForm(initialSettingCount){
     return useReducer(packageFormReducer, {
-        nestSettings: buildInitialState(initialSettings)
+        nestSettings: buildInitialState(initialSettingCount)
     });
 }

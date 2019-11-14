@@ -1,8 +1,9 @@
-import React, {useEffect, useRef, useState} from "react";
-import {useKeyList} from "../reducers/key-list";
+import React, {useEffect, useRef, useState, useReducer} from "react";
 import useForm from 'react-hook-form';
 import {styled} from "linaria/react";
-import OrderCard from "../components/OrderCard";
+
+import {useKeyList} from "../../reducers/key-list";
+import OrderCard from "../../components/OrderCard";
 
 const TicketUnstyledList = styled.ul`
 list-style: none;
@@ -32,8 +33,23 @@ justify-content: center;
 >ul{
   flex: 1 0;
   max-width: 400px;
+  >li{
+    min-width: 100%;
+  }
 }
 `;
+
+const indexReducer = (current, action) => {
+    switch(action){
+    case 'next':
+        return current+1;
+    case 'prev':
+        return current-1;
+    default:
+        if (typeof(action) === 'number') return action;
+        return current;
+    }
+};
 
 const setAllValues = (values, setValue, currentName) => {
     if(Array.isArray(values)) {
@@ -80,34 +96,75 @@ const SelectWithOther = ({children, register, name}) => {
     );
 }
 
-export default ({tickets, send}) => {
+const makeDispatchButton = (dispatch) => {
+    return ({event = {}, children, onClick = (()=>dispatch(event))}) => {
+        return(
+            <button
+              type="button"
+              onClick={onClick}
+            >
+              {children}
+            </button>
+        );
+    };
+};
+
+export default ({columns, send}) => {
     const [ lineItemState, lineItemDispatch ] = useKeyList(1);
     const formRef = useRef();
-    const { register, handleSubmit, errors, setValue } = useForm({
+    const { register, handleSubmit, errors, setValue, getValues, reset } = useForm({
         reValidateMode: "onSubmit"
     });
 
-    const setFormToTicket = (index) => {
-        setAllValues(tickets[index], setValue);
-        formRef.current[0].focus();
-    };
+    const [ selectedColumnIndex, selectColumn ] = useReducer(
+        indexReducer, 0
+    );
 
-    const onSubmit = (data, e) => {
-        send({
-            type: "ADD",
-            ticket: data
+    const [ selectedItemIndex, selectItem ] = useReducer(
+        indexReducer, 0
+    );
+
+    const tickets = columns[selectedColumnIndex].items;
+
+    const DispatchButton = makeDispatchButton(send);
+
+    const setFormToTicket = (index) => {
+        const ticket = tickets[index];
+        selectItem(index);
+        lineItemDispatch({
+            type: "RESET",
+            itemCount: ticket.lineItems.length
         });
-        e.target.reset();
-        e.target[0].focus();
+        setAllValues(ticket, setValue);
+        formRef.current[0].focus();
     };
 
     useEffect(()=>{
         formRef.current[0].focus();
+
+        /*
+        send({
+            type: "ADD",
+            ticket: {
+                "ticketID": "100034",
+                "PO": "244553 Rev 4",
+                "comment": "asdadsasda\n\nsss\n\nmultiline",
+                "lineItems": [
+                    {
+                        "item": "weebo",
+                        "quantity": "4",
+                        "price": "2.23",
+                        "lot": "25565"
+                    }
+                ]
+            }
+        });
+        */
     }, []);
 
     return(
         <EditorContainer>
-          <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
+          <form ref={formRef}>
             <Field
               label="ID"
               name="ticketID"
@@ -174,15 +231,60 @@ export default ({tickets, send}) => {
                   ))
               }
             </LineItemFormList>
-            <button onClick={()=>lineItemDispatch({
-                type: "APPEND"
-            })}>Add Item</button>
             <div>
-              <button type="submit">Submit</button>
-              <button type="button">Other</button>
+              <button
+                type="button"
+                onClick={e=>{
+                    lineItemDispatch({
+                        type: "APPEND"
+                    });
+                }}>Add Line Item</button>
             </div>
+            <div>
+            <button
+              type="button"
+              onClick={(e)=>{
+                  console.log(getValues({nest: true}));
+                  send({
+                      type: "ADD",
+                      column: selectedColumnIndex,
+                      ticket: getValues({nest: true})
+                  });
+              }}
+            >
+              Append
+            </button>
+            <button
+              type="button"
+              onClick={(e)=>{
+                  console.log(getValues({nest: true}));
+                  send({
+                      type: "UPDATE",
+                      column: selectedColumnIndex,
+                      index: selectedItemIndex,
+                      ticket: getValues({nest: true})
+                  });
+              }}
+            >
+              Update
+        </button>
+        </div>
+            <p>
+              <button type="button" onClick={()=>selectColumn('prev')}>&larr;</button>
+              {selectedColumnIndex}, {selectedItemIndex}
+              <button type="button" onClick={()=>selectColumn('next')}>&rarr;</button>
+            </p>
           </form>
-          <TicketList tickets={tickets} handleLoad={setFormToTicket}/>
+          {
+              (tickets && tickets.length > 0) && (
+                  <>
+                    <TicketList
+                      tickets={tickets}
+                      handleLoad={setFormToTicket}
+                    />
+                  </>
+              )
+          }
         </EditorContainer>
     );
 };
@@ -195,6 +297,7 @@ const TicketList = ({tickets, handleLoad}) => (
               item={ticket}
               columnIndex={0}
             />
+            <button type="button" onClick={()=>handleLoad(index)}>Load</button>
           </TicketListItem>
       ))}
     </TicketUnstyledList>

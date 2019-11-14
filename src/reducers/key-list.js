@@ -5,6 +5,9 @@ import { remove, update, insert, move } from 'ramda';
 export function keyListReducer(state, action){
     switch(action.type){
 
+    case "RESET":
+        return buildInitialState(action.itemCount);
+
     case "APPEND":
         return {
             keys: state.keys.concat(state.nextKey),

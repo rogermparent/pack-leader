@@ -53,14 +53,13 @@ export const orderMachine = Machine(
                     UPDATE: {
                         actions: ['updateOrderField', 'persist']
                     }
-
                 }
             },
             editor: {
                 on: {
                     ...menuTransitions,
                     ADD: {
-                        actions: ['addTicket', 'persist']
+                        actions: ['appendTicket', 'persist']
                     },
                     LOAD: {
                         actions: ['loadTicket']
@@ -77,13 +76,14 @@ export const orderMachine = Machine(
     },{
         actions: {
 
-            addTicket: assign({
+            appendTicket: assign({
                 columns: (ctx, e) => {
-                    const newColumns = evolveFirstColumnItems(
+                    const newColumns = evolveColumnItems(
+                        0,
                         append(e.ticket),
                         ctx.columns
                     );
-                    console.log(newColumns);
+                    console.log(e, newColumns);
                     return newColumns;
                 }
             }),
@@ -95,10 +95,15 @@ export const orderMachine = Machine(
                 )
             }),
             updateTicket: assign({
-                columns: (ctx, e) => evolveFirstColumnItems(
-                    update(e.index, e.ticket),
-                    ctx.columns
-                )
+                columns: (ctx, e) => {
+                    const newColumns = evolveColumnItems(
+                        e.column,
+                        update(e.index, e.ticket),
+                        ctx.columns
+                    );
+                    console.log(newColumns);
+                    return newColumns;
+                }
             }),
             // TODO Badly needed overhaul
             updateOrderField: assign({
@@ -164,6 +169,6 @@ export const orderMachine = Machine(
 );
 
 const evolveColumnItems = (column, fn, columns) => adjust(
-    column, evolve({items: fn})
+    column, evolve({items: fn}), columns
 );
 const evolveFirstColumnItems = (fn, columns) => evolveColumnItems(0, fn, columns);

@@ -220,13 +220,13 @@ const IndexPage = () => {
               <button type="submit">Submit</button>
               <button type="button">Other</button>
             </div>
-            <EditorColumnList tickets={current.context.columns[0].items}/>
+            <TicketList tickets={current.context.columns[0].items}/>
           </form>
         </Layout>
     );
 };
 
-const EditorColumnList = ({tickets}) => (
+const TicketList = ({tickets}) => (
     <ul>
       {tickets.map(ticket=>(
           <li>

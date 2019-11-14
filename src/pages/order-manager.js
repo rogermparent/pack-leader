@@ -4,17 +4,17 @@ import {styled} from "linaria/react";
 
 import Layout from "../components/layout";
 import {orderMachine} from "../reducers/order-manager";
-import PickTicketManager from "../components/ticket-manager";
+import Editor from "../components/Editor";
 
 import KanbanBoard from "../components/Kanban";
 import OrderCard from "../components/OrderCard";
 import KanbanColumn from "../components/Kanban/Column";
 
 const modeSwitcher = (current, send) => {
-    if(current.matches('ticketManager')) {
+    if(current.matches('editor')) {
         return (
-            <PickTicketManager
-              tickets={current.context.columns[0].items}
+            <Editor
+              columns={current.context.columns}
               send={send}
             />
         );
