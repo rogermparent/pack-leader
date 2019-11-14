@@ -1,4 +1,5 @@
 import {
+    __,
     evolve,
     remove,
     update,
@@ -111,21 +112,17 @@ export const orderMachine = Machine(
                     return newColumns;
                 }
             }),
-            // TODO Badly needed overhaul
             updateOrderField: assign({
-                columns: (ctx, e) => tap(
-                    console.log,
-                    evolveColumnItems(
-                        e.column,
-                        adjust(
-                            e.index,
-                            assoc(
-                                e.field,
-                                e.value
-                            )
-                        ),
-                        ctx.columns,
+                columns: (ctx, e) => evolveColumnItems(
+                    e.column,
+                    adjust(
+                        e.index,
+                        assoc(
+                            e.field,
+                            e.value
+                        )
                     ),
+                    ctx.columns,
                 )
             }),
 
@@ -142,19 +139,10 @@ export const orderMachine = Machine(
                             order
                         );
                     }
-                    return evolveColumnItems(
-                        e.column+1, append(order),
-                        evolveColumnItems(
-                            e.column, remove(e.index, 1),
-                            ctx.columns
-                        )
-                    );
-                    /*
                     return pipe(
                         evolveColumnItems(e.column+1, append(order)),
                         evolveColumnItems(e.column, remove(e.index, 1)),
                     )(ctx.columns);
-                    */
                 }
             }),
             moveOrderLeft: assign({
@@ -167,12 +155,10 @@ export const orderMachine = Machine(
                             ctx.columns
                         )
                     );
-                    /*
                     return pipe(
                         evolveColumnItems(e.column-1, append(order)),
                         evolveColumnItems(e.column, remove(e.index, 1)),
                     )(ctx.columns);
-                    */
                 }
             }),
             moveOrderUp: assign({
@@ -204,7 +190,7 @@ export const orderMachine = Machine(
     }
 );
 
-const evolveColumnItems = (column, fn, columns) => adjust(
-    column, evolve({items: fn}), columns
+const evolveColumnItems = (column, fn) => adjust(
+    column, evolve({items: fn}), __
 );
 const evolveFirstColumnItems = (fn, columns) => evolveColumnItems(0, fn, columns);
