@@ -160,10 +160,19 @@ export const orderMachine = Machine(
             moveOrderLeft: assign({
                 columns: (ctx, e) => {
                     const order = ctx.columns[e.column].items[e.index];
+                    return evolveColumnItems(
+                        e.column-1, append(order),
+                        evolveColumnItems(
+                            e.column, remove(e.index, 1),
+                            ctx.columns
+                        )
+                    );
+                    /*
                     return pipe(
                         evolveColumnItems(e.column-1, append(order)),
                         evolveColumnItems(e.column, remove(e.index, 1)),
                     )(ctx.columns);
+                    */
                 }
             }),
             moveOrderUp: assign({
