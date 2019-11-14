@@ -142,10 +142,19 @@ export const orderMachine = Machine(
                             order
                         );
                     }
+                    return evolveColumnItems(
+                        e.column+1, append(order),
+                        evolveColumnItems(
+                            e.column, remove(e.index, 1),
+                            ctx.columns
+                        )
+                    );
+                    /*
                     return pipe(
                         evolveColumnItems(e.column+1, append(order)),
                         evolveColumnItems(e.column, remove(e.index, 1)),
                     )(ctx.columns);
+                    */
                 }
             }),
             moveOrderLeft: assign({
