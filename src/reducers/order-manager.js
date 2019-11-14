@@ -7,7 +7,7 @@ import {
     pipe,
     assoc,
     tap,
-    __,
+    move,
 } from 'ramda';
 import {Machine, assign} from 'xstate';
 
@@ -46,6 +46,12 @@ export const orderMachine = Machine(
                     },
                     MOVE_LEFT: {
                         actions: ['moveOrderLeft', 'persist'],
+                    },
+                    MOVE_UP: {
+                        actions: ['moveOrderUp', 'persist'],
+                    },
+                    MOVE_DOWN: {
+                        actions: ['moveOrderDown', 'persist'],
                     },
                     REMOVE: {
                         actions: ['removeOrder', 'persist'],
@@ -152,6 +158,20 @@ export const orderMachine = Machine(
                         ctx.columns,
                     );
                 }
+            }),
+            moveOrderUp: assign({
+                columns: (ctx, e) => evolveColumnItems(
+                    e.column,
+                    move(e.index, e.index-1),
+                    ctx.columns
+                )
+            }),
+            moveOrderDown: assign({
+                columns: (ctx, e) => evolveColumnItems(
+                    e.column,
+                    move(e.index, e.index+1),
+                    ctx.columns
+                )
             }),
             removeOrder: assign({
                 columns: (ctx, e) => evolveColumnItems(

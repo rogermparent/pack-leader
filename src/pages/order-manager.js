@@ -58,6 +58,7 @@ const modeSwitcher = (current, send) => {
                           column: colIndex,
                           index: itemIndex,
                       });
+                      console.log(colIndex, itemIndex)
                   },
                   removeItem: (colIndex, itemIndex)=>{
                       send({

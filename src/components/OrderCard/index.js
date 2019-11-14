@@ -206,7 +206,7 @@ const PropertyLine = ({
 );
 
 const LineItem = ({
-    lineItem: {item, quantity, price},
+    lineItem: {item, quantity, price, lot},
     index
 }) => (
     <tr>
@@ -214,6 +214,7 @@ const LineItem = ({
       <td>{quantity}</td>
       <td>${price}</td>
       <td>${(quantity * price).toFixed(2)}</td>
+      {lot && <td>{lot}</td>}
     </tr>
 );
 
