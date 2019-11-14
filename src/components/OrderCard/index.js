@@ -135,7 +135,7 @@ export const OrderView = ({order, columnIndex, itemIndex, actions}) => {
 
     const [totalPrice, totalItems] = lineItems.reduce((acc, current)=>([
         acc[0] + (current.price * current.quantity),
-        acc[1] + current.quantity
+        acc[1] + Number(current.quantity)
     ]), [0,0]);
 
     return(
