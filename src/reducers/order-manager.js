@@ -145,8 +145,7 @@ export const orderMachine = Machine(
                     return pipe(
                         evolveColumnItems(e.column+1, append(order)),
                         evolveColumnItems(e.column, remove(e.index, 1)),
-                        ctx.columns,
-                    );
+                    )(ctx.columns);
                 }
             }),
             moveOrderLeft: assign({
@@ -155,8 +154,7 @@ export const orderMachine = Machine(
                     return pipe(
                         evolveColumnItems(e.column-1, append(order)),
                         evolveColumnItems(e.column, remove(e.index, 1)),
-                        ctx.columns,
-                    );
+                    )(ctx.columns);
                 }
             }),
             moveOrderUp: assign({
