@@ -190,7 +190,7 @@ export const orderMachine = Machine(
     }
 );
 
-const evolveColumnItems = (column, fn) => adjust(
-    column, evolve({items: fn}), __
+const evolveColumnItems = (column, fn, columns) => adjust(
+    column, evolve({items: fn}), columns || __
 );
 const evolveFirstColumnItems = (fn, columns) => evolveColumnItems(0, fn, columns);
